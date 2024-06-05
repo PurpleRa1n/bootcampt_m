@@ -5,11 +5,11 @@ from rest_framework import permissions
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Your Project API",
+        title="bootcamp_m swagger documentation",
         default_version='v1',
-        description="API documentation for your project",
+        description="bootcamp_m swagger documentation",
         terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@yourproject.local"),
+        contact=openapi.Contact(email="wahtever"),
         license=openapi.License(name="BSD License"),
     ),
     public=True,
