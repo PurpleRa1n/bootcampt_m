@@ -15,3 +15,8 @@ class ServiceArea(models.Model):
     price = models.FloatField()
     geojson = gis_models.PolygonField()
     provider = models.ForeignKey(Provider, related_name='service_areas', on_delete=models.CASCADE)
+
+    class Meta:
+        indexes = [
+            gis_models.Index(fields=['geojson'], name='geojson_ids')
+        ]
