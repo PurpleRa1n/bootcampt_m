@@ -7,7 +7,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from service_area.api.serializers import ProviderSerializer, ServiceAreaSerializer
+from service_area.api.serializers import ProviderSerializer, ServiceAreaSerializer, LocationQueryParamsSerializer
 from service_area.models import Provider, ServiceArea
 
 
@@ -76,8 +76,10 @@ class ServiceAreaViewSet(viewsets.ModelViewSet):
         """
         Locate service areas that contain a given point.
         """
-        lat = float(request.query_params.get('lat'))
-        lng = float(request.query_params.get('lng'))
+        query_params_serializer = LocationQueryParamsSerializer(data=request.query_params)
+        query_params_serializer.is_valid(raise_exception=True)
+        lat = query_params_serializer['lat'].value
+        lng = query_params_serializer['lng'].value
         point = Point(lng, lat)
         service_areas = ServiceArea.objects.filter(geojson__contains=point)
         serializer = self.get_serializer(service_areas, many=True)

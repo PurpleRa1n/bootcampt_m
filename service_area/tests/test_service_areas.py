@@ -41,3 +41,10 @@ def test_locate_service_area(api_client, create_service_area):
     response = api_client.get('/api/service_areas/locate/', {'lat': 0.5, 'lng': 0.5})
     assert response.status_code == HTTPStatus.OK
     assert len(response.data) == 1
+
+
+@pytest.mark.django_db
+def test_locate_service_area_empty_params(api_client, create_service_area):
+    create_service_area()
+    response = api_client.get('/api/service_areas/locate/')
+    assert response.status_code == HTTPStatus.BAD_REQUEST
