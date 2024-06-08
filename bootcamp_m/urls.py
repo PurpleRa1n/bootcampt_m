@@ -3,6 +3,8 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
+from bootcamp_m.views import health_check
+
 schema_view = get_schema_view(
     openapi.Info(
         title="bootcamp_m swagger documentation",
@@ -18,5 +20,6 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('api/', include('service_area.urls')),
+    path('status/', health_check, name='health_check'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
