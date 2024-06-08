@@ -10,8 +10,17 @@ RUN apt-get update && apt-get install -y \
     netcat-openbsd \
     && apt-get clean
 
-ENV GDAL_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/libgdal.so
-ENV LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu
+# Dynamically find the GDAL library path
+RUN if [ -f /usr/lib/aarch64-linux-gnu/libgdal.so ]; then \
+      export GDAL_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/libgdal.so && \
+      export LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu; \
+    elif [ -f /usr/lib/x86_64-linux-gnu/libgdal.so ]; then \
+      export GDAL_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/libgdal.so && \
+      export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu; \
+    else \
+      echo "GDAL library not found"; \
+      exit 1; \
+    fi
 
 # Set work directory
 WORKDIR /code
@@ -23,6 +32,9 @@ RUN pip install -r requirements.txt
 
 # Copy project
 COPY ../.. /code/
+
+# Ensure the entrypoint script has execution permissions
+RUN chmod +x /code/compose/api/entrypoint.sh
 
 # Create the staticfiles directory
 RUN mkdir -p /code/staticfiles
