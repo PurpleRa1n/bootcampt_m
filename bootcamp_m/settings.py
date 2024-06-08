@@ -24,10 +24,10 @@ APP_START_TIME = time.time()
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8l#*nsfqi_0a_)!-2zrrpf8vj&etk^y)4qi--)^q*_@9oz-8@f'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 0)
 
 ALLOWED_HOSTS = []
 
