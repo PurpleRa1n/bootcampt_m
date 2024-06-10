@@ -1,12 +1,14 @@
 from http import HTTPStatus
 
 from django.contrib.gis.geos import Point
+from django.core.cache import cache
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from service_area.api.constants import CACHE_LOCATE_TIMEOUT
 from service_area.api.serializers import ProviderSerializer, ServiceAreaSerializer, LocationQueryParamsSerializer
 from service_area.models import Provider, ServiceArea
 
@@ -49,7 +51,7 @@ class ServiceAreaViewSet(viewsets.ModelViewSet):
     update:
     Update an existing service area.
     """
-    queryset = ServiceArea.objects.all()
+    queryset = ServiceArea.objects.select_related('provider')
     serializer_class = ServiceAreaSerializer
 
     @swagger_auto_schema(
@@ -80,7 +82,16 @@ class ServiceAreaViewSet(viewsets.ModelViewSet):
         query_params_serializer.is_valid(raise_exception=True)
         lat = query_params_serializer['lat'].value
         lng = query_params_serializer['lng'].value
+        cache_key = f'service_area_{lat}_{lng}'
+
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            return Response(cached_result)
+
         point = Point(lng, lat)
         service_areas = ServiceArea.objects.filter(geojson__contains=point)
         serializer = self.get_serializer(service_areas, many=True)
-        return Response(serializer.data)
+        response_data = serializer.data
+        cache.set(cache_key, response_data, timeout=CACHE_LOCATE_TIMEOUT)
+
+        return Response(response_data)
